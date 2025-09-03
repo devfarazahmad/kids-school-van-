@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025200395581",
+    "project_id": "schoolvan-c5931",
+    "storage_bucket": "schoolvan-c5931.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025200395581:android:ec60c71437babe8b75e154",
+        "android_client_info": {
+          "package_name": "com.example.kids_van"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2k3Bky6W_FSKCHBbmAYCc7VphskuII3o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
