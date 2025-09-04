@@ -1,3 +1,176 @@
+// import 'package:flutter/material.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'teacher_login.dart';
+
+// class TeacherSignup extends StatefulWidget {
+//   const TeacherSignup({super.key});
+
+//   @override
+//   State<TeacherSignup> createState() => _TeacherSignupState();
+// }
+
+// class _TeacherSignupState extends State<TeacherSignup> {
+//   final _auth = FirebaseAuth.instance;
+//   final _firestore = FirebaseFirestore.instance;
+
+//   final emailController = TextEditingController();
+//   final nameController = TextEditingController();
+//   final passwordController = TextEditingController();
+//   final subjectController = TextEditingController();
+//   final phoneController = TextEditingController();
+
+//   Future signup() async {
+//     try {
+//       final userCredential = await _auth.createUserWithEmailAndPassword(
+//         email: emailController.text.trim(),
+//         password: passwordController.text.trim(),
+//       );
+
+//       await _firestore.collection("teachers").doc(userCredential.user!.uid).set({
+//         "email": emailController.text.trim(),
+//         "name": nameController.text.trim(),
+//         "subject": subjectController.text.trim(),
+//         "phone": phoneController.text.trim(),
+//       });
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text("Signup Successful")),
+//       );
+
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (context) => const TeacherLogin()),
+//       );
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(content: Text("Error: $e")),
+//       );
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Container(
+//         width: double.infinity,
+//         height: double.infinity,
+//         decoration: const BoxDecoration(
+//           gradient: LinearGradient(
+//             colors: [Colors.deepPurple, Colors.deepPurple],
+//             begin: Alignment.topCenter,
+//             end: Alignment.bottomCenter,
+//           ),
+//         ),
+//         child: Center(
+//           child: SingleChildScrollView(
+//             padding: const EdgeInsets.all(20),
+//             child: Card(
+//               elevation: 10,
+//               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+//               child: Padding(
+//                 padding: const EdgeInsets.all(25),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.center,
+//                   children: [
+//                     const Text(
+//                       "Teacher Signup",
+//                       style: TextStyle(
+//                         fontSize: 26,
+//                         fontWeight: FontWeight.bold,
+//                         color: Colors.deepPurple,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 10),
+//                     const Text(
+//                       "Create your account ",
+//                       style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 79, 0, 215)),
+//                     ),
+//                     const SizedBox(height: 20),
+
+//                     _inputField("Email", emailController, false, Icons.email),
+//                     const SizedBox(height: 15),
+//                     _inputField("Name", nameController, false, Icons.person),
+//                     const SizedBox(height: 15),
+//                     _inputField("Password", passwordController, true, Icons.lock),
+//                     const SizedBox(height: 15),
+//                     _inputField("Subject", subjectController, false, Icons.book),
+//                     const SizedBox(height: 15),
+//                     _inputField("Phone Number", phoneController, false, Icons.phone),
+
+//                     const SizedBox(height: 25),
+//                     _mainButton("Signup", signup),
+
+//                     const SizedBox(height: 15),
+//                     GestureDetector(
+//                       onTap: () {
+//                         Navigator.pushReplacement(
+//                           context,
+//                           MaterialPageRoute(builder: (context) => const TeacherLogin()),
+//                         );
+//                       },
+//                       child: const Text(
+//                         "Already have an account? Log in",
+//                         style: TextStyle(
+//                           color: Colors.deepPurple,
+//                           fontWeight: FontWeight.bold,
+//                           fontSize: 15,
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _inputField(
+//       String label, TextEditingController controller, bool obscure, IconData icon) {
+//     return TextField(
+//       controller: controller,
+//       obscureText: obscure,
+//       decoration: InputDecoration(
+//         labelText: label,
+//         prefixIcon: Icon(icon, color: Colors.deepPurple),
+//         filled: true,
+//         fillColor: Colors.grey.shade100,
+//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+//         focusedBorder: OutlineInputBorder(
+//           borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+//           borderRadius: BorderRadius.circular(12),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _mainButton(String text, VoidCallback onPressed) {
+//     return SizedBox(
+//       width: double.infinity,
+//       height: 50,
+//       child: ElevatedButton(
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: Colors.deepPurple,
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//           elevation: 5,
+//         ),
+//         onPressed: onPressed,
+//         child: Text(
+//           text,
+//           style: const TextStyle(
+//             fontSize: 18,
+//             fontWeight: FontWeight.bold,
+//             color: Colors.white,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -5,16 +178,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kids_van/screens/services/srvices_images.dart';
+import 'package:kids_van/screens/teacher_login.dart';
 import 'driver_login.dart';
 
-class DriverSignup extends StatefulWidget {
-  const DriverSignup({super.key});
+class TeacherSignup extends StatefulWidget {
+  const TeacherSignup({super.key});
 
   @override
-  State<DriverSignup> createState() => _DriverSignupState();
+  State<TeacherSignup> createState() => _DriverSignupState();
 }
 
-class _DriverSignupState extends State<DriverSignup> {
+class _DriverSignupState extends State<TeacherSignup> {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
@@ -81,7 +255,7 @@ if (response != null && response["success"]) {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DriverLogin()),
+        MaterialPageRoute(builder: (_) => const TeacherLogin()),
       );
     } catch (e) {
       ScaffoldMessenger.of(context)
@@ -139,7 +313,7 @@ if (response != null && response["success"]) {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "Driver Signup",
+                      "Teacher Signup",
                       style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -166,8 +340,8 @@ if (response != null && response["success"]) {
                     const SizedBox(height: 15),
                     customTextField(
                         controller: vehicleController,
-                        label: "Vehicle Number",
-                        icon: Icons.directions_car),
+                        label: "Subject",
+                        icon: Icons.book_online),
                     const SizedBox(height: 15),
                     customTextField(
                         controller: phoneController,
@@ -240,3 +414,4 @@ if (response != null && response["success"]) {
     );
   }
 }
+

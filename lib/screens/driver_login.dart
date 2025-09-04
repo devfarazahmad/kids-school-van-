@@ -45,45 +45,110 @@ class _DriverLoginState extends State<DriverLogin> {
     }
   }
 
+  /// Reusable styled TextField
+  Widget buildTextField({
+    required String label,
+    required IconData icon,
+    required TextEditingController controller,
+    bool obscure = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.deepPurple),
+          labelText: label,
+          filled: true,
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: Colors.deepPurple.shade200, width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Driver Login")),
-      body: Padding(
+      backgroundColor: Colors.deepPurple.shade50,
+      appBar: AppBar(
+        title: const Text("Driver Login", style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Text("Welcome Dear Driver",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              Image.asset("assets/images/splash_logo.jpeg", height: 150),
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Email"),
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            Icon(Icons.local_taxi, size: 100, color: Colors.deepPurple.shade400),
+            const SizedBox(height: 10),
+            Text(
+              "Welcome Dear Driver",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple.shade700,
               ),
-              TextField(
+            ),
+            const SizedBox(height: 30),
+
+            /// Input Fields
+            buildTextField(
+                label: "Email", icon: Icons.email, controller: emailController),
+            buildTextField(
+                label: "Password",
+                icon: Icons.lock,
                 controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Password"),
+                obscure: true),
+
+            const SizedBox(height: 20),
+
+            /// Login Button
+            ElevatedButton(
+              onPressed: login,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                minimumSize: const Size(double.infinity, 55),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(onPressed: login, child: const Text("Login")),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const DriverSignup()),
-                  );
-                },
-                child: const Text(
-                  "Don’t have an account? Create Now",
-                  style: TextStyle(
-                      color: Colors.blue, fontWeight: FontWeight.bold),
+              child: const Text(
+                "Login",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            /// Switch to Signup
+            GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const DriverSignup()),
+                );
+              },
+              child: const Text(
+                "Don’t have an account? Create Now",
+                style: TextStyle(
+                  color: Colors.deepPurple,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
