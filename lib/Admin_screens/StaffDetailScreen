@@ -1,0 +1,201 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class StaffDetailScreen extends StatelessWidget {
+  final String staffId;
+  const StaffDetailScreen({super.key, required this.staffId});
+
+  @override
+  Widget build(BuildContext context) {
+    final staffRef = FirebaseFirestore.instance.collection('staff').doc(staffId);
+    final paymentsRef = staffRef.collection('payments'); // Subcollection
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Staff Details", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: staffRef.snapshots(),
+        builder: (context, staffSnap) {
+          if (staffSnap.hasError) {
+            return const Center(child: Text("Error loading staff"));
+          }
+          if (!staffSnap.hasData || !staffSnap.data!.exists) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final data = staffSnap.data!.data() as Map<String, dynamic>;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Staff Info
+                Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Name: ${data['name'] ?? ''}",
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text("Role: ${data['role'] ?? ''}"),
+                        Text("Phone: ${data['phone'] ?? ''}"),
+                        Text("Email: ${data['email'] ?? ''}"),
+                        Text("Salary: Rs.${data['salary'] ?? 0}"),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                await staffRef.delete();
+                                if (context.mounted) Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red),
+                              icon: const Icon(Icons.delete),
+                              label: const Text("Delete"),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context); // for editing logic
+                              },
+                              icon: const Icon(Icons.edit),
+                              label: const Text("Edit"),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Payment Records Section
+                const Text("Payment Records (Month-wise)",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+
+                StreamBuilder<QuerySnapshot>(
+                  stream: paymentsRef.orderBy("month").snapshots(),
+                  builder: (context, paySnap) {
+                    if (paySnap.hasError) {
+                      return const Text("Error loading payments");
+                    }
+                    if (!paySnap.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final payments = paySnap.data!.docs;
+
+                    if (payments.isEmpty) {
+                      return const Text("No payments recorded yet.");
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: payments.length,
+                      itemBuilder: (context, index) {
+                        final payData =
+                            payments[index].data() as Map<String, dynamic>;
+                        final isPaid = payData['status'] ?? false;
+
+                        return Card(
+                          child: ListTile(
+                            title: Text(payData['month'] ?? ''),
+                            subtitle: Text(
+                                "Amount: Rs.${payData['amount'] ?? 0}"),
+                            trailing: Icon(
+                              isPaid ? Icons.check_circle : Icons.cancel,
+                              color: isPaid ? Colors.green : Colors.red,
+                            ),
+                            onTap: () async {
+                              // Toggle paid/pending
+                              await payments[index].reference.update({
+                                "status": !isPaid,
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _showAddPaymentDialog(context, paymentsRef);
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add Payment Record"),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Dialog to add new payment record
+  void _showAddPaymentDialog(
+      BuildContext context, CollectionReference paymentsRef) {
+    final monthController = TextEditingController();
+    final amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Add Payment Record"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: monthController,
+              decoration: const InputDecoration(
+                  labelText: "Month (e.g., Jan 2025)"),
+            ),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Amount"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () async {
+              if (monthController.text.isNotEmpty &&
+                  amountController.text.isNotEmpty) {
+                await paymentsRef.add({
+                  "month": monthController.text,
+                  "amount": int.tryParse(amountController.text) ?? 0,
+                  "status": false, // pending by default
+                  "createdAt": FieldValue.serverTimestamp(),
+                });
+                if (context.mounted) Navigator.pop(context);
+              }
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+}

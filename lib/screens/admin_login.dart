@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_signup.dart';
-import 'admin_home.dart';
+import '../Admin_screens/admin_home.dart';
 
 class AdminLogin extends StatefulWidget {
   const AdminLogin({super.key});
